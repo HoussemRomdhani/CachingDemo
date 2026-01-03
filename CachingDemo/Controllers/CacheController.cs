@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
+using ZiggyCreatures.Caching.Fusion;
 
 namespace CachingDemo.Controllers;
 
@@ -7,16 +7,25 @@ namespace CachingDemo.Controllers;
 [Route("cache")]
 public class CacheController : ControllerBase
 {
-    private readonly IMemoryCache _cache;
-    public CacheController(IMemoryCache cache)
+    private readonly IFusionCache _cache;
+    public CacheController(IFusionCache cache)
     {
         _cache = cache;
     }
 
     [HttpDelete]
-    public IActionResult Remove([FromQuery] string key)
+    [Route("Remove")]
+    public async Task<IActionResult> Remove([FromQuery] string key)
     {
-        _cache.Remove(key);
+        await _cache.RemoveAsync(key);
+        return Ok();
+    }
+    
+    [HttpDelete]
+    [Route("Expire")]
+    public async Task<IActionResult> Expire([FromQuery] string key)
+    {
+        await _cache.ExpireAsync(key);
         return Ok();
     }
 }
