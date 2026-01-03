@@ -17,6 +17,10 @@ public class FusionMemoryCachingWeatherForcastService : IWeatherForcastService
     {
         return await _cache.GetOrSetAsync<WeatherForecast?>(
             $"weatherforecast_{city}",
-            async (entry) => await _service.Get(city));
+            async (entry) => await _service.Get(city),
+            options: new FusionCacheEntryOptions()
+            {
+               IsFailSafeEnabled = true
+            });
     }
 }
