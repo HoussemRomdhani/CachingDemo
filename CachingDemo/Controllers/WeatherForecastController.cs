@@ -8,8 +8,8 @@ namespace CachingDemo.Controllers;
 [Route("weatherForecast")]
 public class WeatherForecastController : ControllerBase
 {
-    private readonly WeatherForcastService _service;
-    public WeatherForecastController(WeatherForcastService service)
+    private readonly IWeatherForcastService _service;
+    public WeatherForecastController(IWeatherForcastService service)
     {
         _service = service;
     }

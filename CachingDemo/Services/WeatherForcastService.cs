@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CachingDemo.Services;
 
-public class WeatherForcastService
+public class WeatherForcastService : IWeatherForcastService
 {
     private readonly WeatherForecastDbContext _context;
     public WeatherForcastService(WeatherForecastDbContext context)

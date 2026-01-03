@@ -11,8 +11,10 @@ builder.Services.AddDbContext<WeatherForecastDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres"));
 });
-builder.Services.AddScoped<WeatherForcastService>();
 
+builder.Services.AddScoped<WeatherForcastService>();
+builder.Services.AddScoped<IWeatherForcastService, MemoryCachingWeatherForcastService>();
+builder.Services.AddMemoryCache();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
