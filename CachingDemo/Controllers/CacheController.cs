@@ -22,6 +22,14 @@ public class CacheController : ControllerBase
     }
     
     [HttpDelete]
+    [Route("Remove/Tags")]
+    public async Task<IActionResult> RemoveByTag([FromQuery] string tag)
+    {
+        await _cache.RemoveByTagAsync(tag);
+        return Ok();
+    }
+    
+    [HttpDelete]
     [Route("Expire")]
     public async Task<IActionResult> Expire([FromQuery] string key)
     {

@@ -31,6 +31,7 @@ builder.Services.AddDbContext<WeatherForecastDbContext>(options =>
 // builder.Services.AddScoped<IWeatherForcastService, FusionMemoryCachingWeatherForcastService>();
 // builder.Services.AddFusionCache();
 
+/*
 builder.Services.AddScoped<WeatherForcastService>();
 builder.Services.AddScoped<IWeatherForcastService, DistributedCachingWeatherForcastService>();
 builder.Services.AddFusionCache()
@@ -42,7 +43,20 @@ builder.Services.AddFusionCache()
     .WithDistributedCache(new RedisCache(new RedisCacheOptions()
     {
         Configuration = builder.Configuration.GetConnectionString("Redis")
-    }));
+    }));*/
+
+builder.Services.AddScoped<WeatherForcastService>();
+builder.Services.AddScoped<IWeatherForcastService, HybridCachingWeatherForcastService>();
+builder.Services.AddFusionCache()
+    .WithDefaultEntryOptions(new FusionCacheEntryOptions
+    {
+        Duration = TimeSpan.MaxValue,
+    })
+    .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+    .WithDistributedCache(new RedisCache(new RedisCacheOptions()
+    {
+        Configuration = builder.Configuration.GetConnectionString("Redis"),
+    })).AsHybridCache();
 
 var app = builder.Build();
 
@@ -54,4 +68,36 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
+
+var cache = app.Services.GetRequiredService<IFusionCache>();
+cache.Events.Memory.Hit += (sender, args) =>
+{
+    if (!args.Key.StartsWith("__fc"))
+    {
+      Console.WriteLine($"[Memory Cache] Hit key: {args.Key}");
+    }
+};
+cache.Events.Memory.Miss += (sender, args) =>
+{
+    if (!args.Key.StartsWith("__fc"))
+    {
+       Console.WriteLine($"[Memory Cache] Miss key: {args.Key}");
+    }
+};
+
+cache.Events.Distributed.Hit += (sender, args) =>
+{
+    if (!args.Key.StartsWith("__fc"))
+    {
+        Console.WriteLine($"[Distributed Cache] Hit key: {args.Key}");
+    }
+};
+
+cache.Events.Distributed.Miss += (sender, args) =>
+{
+    if (!args.Key.StartsWith("__fc"))
+    {
+      Console.WriteLine($"[Distributed Cache] Miss key: {args.Key}");
+    }
+};
 app.Run();
