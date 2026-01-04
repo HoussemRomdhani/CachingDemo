@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Serilog;
 using ZiggyCreatures.Caching.Fusion;
+using ZiggyCreatures.Caching.Fusion.Backplane.StackExchangeRedis;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,7 +57,14 @@ builder.Services.AddFusionCache()
     .WithDistributedCache(new RedisCache(new RedisCacheOptions()
     {
         Configuration = builder.Configuration.GetConnectionString("Redis"),
-    })).AsHybridCache();
+    }))
+    .WithBackplane(
+        new RedisBackplane(new RedisBackplaneOptions
+        {
+            Configuration = builder.Configuration.GetConnectionString("Redis"),
+        })
+    )
+    .AsHybridCache();
 
 var app = builder.Build();
 
